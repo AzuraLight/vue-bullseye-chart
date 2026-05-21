@@ -8,7 +8,7 @@
 
 export { default as BullseyeChart } from './components/BullseyeChart.vue';
 
-export { defaultSettings, defaultNodeStyle, defaultRingStyle, defaultRingLabelStyle, ringColor } from './settings';
+export { defaultSettings, defaultNodeStyle, defaultRingStyle, defaultRingLabelStyle, defaultSectorStyle, ringColor } from './settings';
 export { validateNodes, type ValidationResult } from './graph/validate';
 export { valueToRingIndex } from './layout/ring';
 export { placeNodes, type PlaceOptions, type PlaceResult } from './layout/place';
@@ -29,4 +29,7 @@ export type {
   RingLabelPosition,
   RingLabelStyle,
   RingLabelStyleResolver,
+  SectorStyle,
+  SectorStyleContext,
+  SectorStyleResolver,
 } from './types';

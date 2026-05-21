@@ -1,4 +1,4 @@
-import type { BullseyeSettings, NodeStyle, NodeStyleContext, PlacedNode, RingLabelStyle, RingStyle, RingStyleContext } from './types';
+import type { BullseyeSettings, NodeStyle, NodeStyleContext, PlacedNode, RingLabelStyle, RingStyle, RingStyleContext, SectorStyle, SectorStyleContext } from './types';
 
 export const defaultSettings: BullseyeSettings = {
   rings: 5,
@@ -29,6 +29,19 @@ export function defaultRingStyle(_ctx: RingStyleContext): RingStyle {
     stroke: '#d1d5db',
     strokeWidth: 1,
     strokeDasharray: '2 4',
+  };
+}
+
+/**
+ * 기본 sector 외형 — 완전 투명. sectorize 모드에서 노드/구분선과 경쟁 피하기 위함.
+ * 의미 있는 시각화 (group 별 옅은 tint 등) 는 `sector-style` resolver 로 opt-in.
+ */
+export function defaultSectorStyle(_ctx: SectorStyleContext): SectorStyle {
+  return {
+    fill: 'transparent',
+    fillOpacity: 0,
+    stroke: 'transparent',
+    strokeWidth: 0,
   };
 }
 

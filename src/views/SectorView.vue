@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { BullseyeChart } from '../lib';
-import type { NodeStyleResolver } from '../lib/types';
+import type { NodeStyleResolver, SectorStyleResolver } from '../lib/types';
 import { sampleSkills, colorForGroup } from './sample-data';
 
 const sectorize = ref(true);
@@ -10,6 +10,12 @@ const sectorize = ref(true);
 const nodeStyle: NodeStyleResolver = (node, ctx) => ({
   fill: colorForGroup(node.group),
   radius: ctx.selected ? 13 : 6 + node.value * 8,
+});
+
+// sector 배경 옅게 — 노드 색과 시너지, opacity 0.08 (업계 권고 ≤0.1)
+const sectorStyle: SectorStyleResolver = ({ group }) => ({
+  fill: colorForGroup(group),
+  fillOpacity: 0.08,
 });
 </script>
 
@@ -32,7 +38,8 @@ const nodeStyle: NodeStyleResolver = (node, ctx) => ({
     </div>
 
     <div class="chart-wrap">
-      <BullseyeChart :nodes="sampleSkills" :sectorize="sectorize" :node-style="nodeStyle" />
+      <BullseyeChart :nodes="sampleSkills" :sectorize="sectorize" :node-style="nodeStyle"
+        :sector-style="sectorStyle" />
     </div>
 
     <p class="lead" style="margin-top:12px">

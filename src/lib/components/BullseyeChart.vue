@@ -14,8 +14,10 @@ import type {
   RingLabelStyleResolver,
   RingStyle,
   RingStyleResolver,
+  SectorStyle,
+  SectorStyleResolver,
 } from '../types';
-import { defaultNodeStyle, defaultRingLabelStyle, defaultRingStyle, defaultSettings } from '../settings';
+import { defaultNodeStyle, defaultRingLabelStyle, defaultRingStyle, defaultSectorStyle, defaultSettings } from '../settings';
 import { validateNodes } from '../graph/validate';
 import { placeNodes } from '../layout/place';
 
@@ -117,6 +119,14 @@ interface Props {
    * @default false
    */
   sectorize?: boolean;
+  /**
+   * sector 배경 외형 resolver. sectorize 모드에서만 사용.
+   * 일부 키만 반환해도 default 가 나머지 채움 (default = 완전 투명).
+   *
+   * @example
+   * :sector-style="({ group }) => ({ fill: colorForGroup(group), fillOpacity: 0.08 })"
+   */
+  sectorStyle?: SectorStyleResolver;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -256,28 +266,47 @@ const POSITION_ANGLE: Record<RingLabelPosition, number> = {
   'top-right':    -Math.PI / 4,
 };
 
-/** sector 시각화 — 구분선 끝점 + 레이블 위치. */
+/** sector 시각화 — 배경 path + 구분선 끝점 + 레이블 위치 + 적용된 style. */
 interface SectorVisual {
   group: string;
+  /** 파이 조각 SVG path (중심 → arc → 중심). */
+  path: string;
   /** 구분선 끝점 (시작 각도 기준, 중심→바깥) */
   dividerX: number;
   dividerY: number;
   /** 레이블 좌표 — sector midAngle, maxRadius 살짝 안쪽 */
   labelX: number;
   labelY: number;
+  /** 적용된 sector 외형(default + resolver override). */
+  style: SectorStyle;
+}
+
+/** 파이 조각(원호 + 두 반지름) SVG path. start→end 가 π 초과 시 large-arc flag. */
+function sectorPath(cx: number, cy: number, r: number, start: number, end: number): string {
+  const x0 = cx + r * Math.cos(start);
+  const y0 = cy + r * Math.sin(start);
+  const x1 = cx + r * Math.cos(end);
+  const y1 = cy + r * Math.sin(end);
+  const largeArc = end - start > Math.PI ? 1 : 0;
+  return `M ${cx},${cy} L ${x0},${y0} A ${r},${r} 0 ${largeArc},1 ${x1},${y1} Z`;
 }
 
 const sectorVisuals = computed<SectorVisual[]>(() => {
   const { cx, cy, maxRadius, sectors } = layout.value;
   // 레이블은 바깥 ring 보다 살짝 안쪽(95%) — padding 없는 컨테이너에서도 잘림 방지
   const labelR = maxRadius * 0.95;
-  return sectors.map((s) => ({
-    group: s.group,
-    dividerX: cx + maxRadius * Math.cos(s.startAngle),
-    dividerY: cy + maxRadius * Math.sin(s.startAngle),
-    labelX: cx + labelR * Math.cos(s.midAngle),
-    labelY: cy + labelR * Math.sin(s.midAngle),
-  }));
+  return sectors.map((s, index) => {
+    const ctx = { group: s.group, index, total: sectors.length };
+    return {
+      group: s.group,
+      path: sectorPath(cx, cy, maxRadius, s.startAngle, s.endAngle),
+      dividerX: cx + maxRadius * Math.cos(s.startAngle),
+      dividerY: cy + maxRadius * Math.sin(s.startAngle),
+      labelX: cx + labelR * Math.cos(s.midAngle),
+      labelY: cy + labelR * Math.sin(s.midAngle),
+      style: resolveStyle(defaultSectorStyle(ctx), props.sectorStyle, ctx),
+    };
+  });
 });
 
 const ringLabelPlacements = computed<RingLabelPlacement[]>(() => {
@@ -452,6 +481,14 @@ watch(layout, () => {
   <svg ref="svgRef" :class="['bullseye-svg', { mounted }]" :width="renderSize.w" :height="renderSize.h"
     :viewBox="`0 0 ${renderSize.w} ${renderSize.h}`" role="img" aria-label="bullseye chart" @click="onBackgroundClick">
     <g ref="viewportRef">
+      <!-- sector backgrounds (ring 가이드보다 먼저 → 그 위에 ring 점선이 올라감) -->
+      <g v-if="layout.sectors.length > 0" class="sector-bg" pointer-events="none">
+        <path v-for="s in sectorVisuals" :key="`sector-bg-${s.group}`"
+          :d="s.path"
+          :fill="s.style.fill" :fill-opacity="s.style.fillOpacity"
+          :stroke="s.style.stroke" :stroke-width="s.style.strokeWidth" />
+      </g>
+
       <!-- ring fills + guides (바깥 ring 부터 그려 안쪽이 위에 올라옴) -->
       <g v-if="props.showRingGuides" class="ring-guides"
          :style="{ transformOrigin: `${layout.cx}px ${layout.cy}px` }">

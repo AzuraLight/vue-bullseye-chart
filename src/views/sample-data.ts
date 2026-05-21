@@ -21,13 +21,15 @@ export const sampleSkills: BullseyeNode[] = [
   { id: 'wasm', label: 'WebAssembly', value: 0.32, group: 'topic' },
 ];
 
+// 6개 group 시각 구분 명확화 — Tailwind 500 계열, 색상환에서 균등 간격.
+// rose / emerald / blue / purple / amber / cyan — 인접 색 충돌 없음.
 const GROUP_COLORS: Record<string, string> = {
-  lang: '#f78166',
-  framework: '#3fb950',
-  lib: '#58a6ff',
-  topic: '#d2a8ff',
-  infra: '#f0883e',
-  tool: '#79c0ff',
+  lang:      '#f43f5e', // rose
+  framework: '#10b981', // emerald
+  lib:       '#3b82f6', // blue
+  topic:     '#a855f7', // purple
+  infra:     '#f59e0b', // amber
+  tool:      '#06b6d4', // cyan
 };
 
 export function colorForGroup(group: string | undefined): string {

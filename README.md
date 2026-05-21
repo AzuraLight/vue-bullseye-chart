@@ -66,6 +66,7 @@ const nodes: BullseyeNode[] = [
 | `show-center-marker` | `boolean` | `true` | 중심점("bull") 마커 + 펄스 |
 | `animate-on-mount` | `boolean` | `true` | mount reveal (ring 확장 + 노드 페이드인). reduced-motion 시 자동 비활성 |
 | `sectorize` | `boolean` | `false` | `node.group` 별 sector(파이 조각) 자동 분할. pure bullseye 와 sector bullseye(pie + bullseye 하이브리드) 토글 |
+| `sector-style` | `(ctx) => Partial<SectorStyle>` | — | sector 배경 외형 resolver(fill, fillOpacity, stroke, strokeWidth). sectorize 모드 전용. group 별 옅은 tint(opacity ≤0.1) 권장 |
 
 ### Events
 

@@ -178,6 +178,48 @@ export interface RingLabelStyle {
  */
 export type RingLabelStyleResolver = (ctx: RingStyleContext) => Partial<RingLabelStyle>;
 
+/** `sector-style` resolver 의 인자. sectorize 모드에서만 호출됨. */
+export interface SectorStyleContext {
+  /** sector 의 group 키 (node.group 값). */
+  group: string;
+  /** 0부터 시작하는 sector index (12시 방향부터 시계방향). */
+  index: number;
+  /** 전체 sector 개수. */
+  total: number;
+}
+
+/**
+ * sector(파이 조각) 배경 외형 4 키. `sector-style` resolver 는 일부만 반환해도 됨.
+ *
+ * 업계 컨벤션: sectorize 모드에서 같은 group 노드가 모이는 공간이라 *옅은 tint*
+ * (opacity ≤ 0.1) 가 시인성에 도움. 단 노드 색과 경쟁하지 않도록 채도/투명도 절제.
+ */
+export interface SectorStyle {
+  /**
+   * sector 배경 채우기 색.
+   * @default 'transparent'
+   * @example colorForGroup(group)  // 노드 색과 시너지
+   */
+  fill: string;
+  /**
+   * 채우기 불투명도. 0.06~0.1 권장.
+   * @default 0
+   */
+  fillOpacity: number;
+  /** sector 외곽(원호) stroke. 기본 없음. @default 'transparent' */
+  stroke: string;
+  /** stroke 두께. @default 0 */
+  strokeWidth: number;
+}
+
+/**
+ * sector 외형 resolver. sectorize 모드에서만 사용.
+ *
+ * @example
+ * :sector-style="({ group }) => ({ fill: colorForGroup(group), fillOpacity: 0.08 })"
+ */
+export type SectorStyleResolver = (ctx: SectorStyleContext) => Partial<SectorStyle>;
+
 /**
  * ring 레이블 배치 위치 (compass 8 방향).
  * 중심에서 해당 방향으로 뻗는 축을 따라 각 ring 의 중간에 레이블 배치.
