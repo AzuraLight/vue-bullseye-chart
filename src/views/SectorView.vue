@@ -12,10 +12,10 @@ const nodeStyle: NodeStyleResolver = (node, ctx) => ({
   radius: ctx.selected ? 13 : 6 + node.value * 8,
 });
 
-// sector 배경 옅게 — 노드 색과 시너지, opacity 0.08 (업계 권고 ≤0.1)
+// sector 배경 — 노드 색과 시너지, opacity 0.15 (업계 권고 상한)
 const sectorStyle: SectorStyleResolver = ({ group }) => ({
   fill: colorForGroup(group),
-  fillOpacity: 0.08,
+  fillOpacity: 0.15,
 });
 </script>
 

@@ -192,7 +192,7 @@ export interface SectorStyleContext {
  * sector(파이 조각) 배경 외형 4 키. `sector-style` resolver 는 일부만 반환해도 됨.
  *
  * 업계 컨벤션: sectorize 모드에서 같은 group 노드가 모이는 공간이라 *옅은 tint*
- * (opacity ≤ 0.1) 가 시인성에 도움. 단 노드 색과 경쟁하지 않도록 채도/투명도 절제.
+ * (opacity 0.08~0.15) 가 시인성에 도움. 노드 색과 경쟁하지 않도록 채도/투명도 절제.
  */
 export interface SectorStyle {
   /**
@@ -202,7 +202,7 @@ export interface SectorStyle {
    */
   fill: string;
   /**
-   * 채우기 불투명도. 0.06~0.1 권장.
+   * 채우기 불투명도. 0.08~0.15 권장 (그 이상은 노드 색과 경쟁).
    * @default 0
    */
   fillOpacity: number;
