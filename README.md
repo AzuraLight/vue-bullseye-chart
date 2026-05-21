@@ -65,6 +65,7 @@ const nodes: BullseyeNode[] = [
 | `ring-label-style` | `(ctx) => Partial<RingLabelStyle>` | — | 라벨 5 키 resolver(color, fontSize, fontWeight, letterSpacing, fontFamily) |
 | `show-center-marker` | `boolean` | `true` | 중심점("bull") 마커 + 펄스 |
 | `animate-on-mount` | `boolean` | `true` | mount reveal (ring 확장 + 노드 페이드인). reduced-motion 시 자동 비활성 |
+| `sectorize` | `boolean` | `false` | `node.group` 별 sector(파이 조각) 자동 분할. pure bullseye 와 sector bullseye(pie + bullseye 하이브리드) 토글 |
 
 ### Events
 

@@ -12,6 +12,7 @@ export { defaultSettings, defaultNodeStyle, defaultRingStyle, defaultRingLabelSt
 export { validateNodes, type ValidationResult } from './graph/validate';
 export { valueToRingIndex } from './layout/ring';
 export { placeNodes, type PlaceOptions, type PlaceResult } from './layout/place';
+export { computeSectors, type Sector } from './layout/sector';
 
 export type {
   BullseyeNode,

@@ -106,6 +106,17 @@ interface Props {
    * @default true
    */
   animateOnMount?: boolean;
+  /**
+   * `true` 이면 `node.group` 별로 sector(파이 조각) 자동 분할.
+   * 같은 group 노드들이 한 호(arc)에 모여서 배치됨. pure bullseye 와 sector bullseye 토글.
+   *
+   * - group 미지정 노드는 단일 `_default` sector 로 묶임
+   * - sectorize 활성 시 sector 구분선 + 레이블 자동 표시
+   * - 업계 표준 분배: 균등(각 group 동일 크기). weighted 는 미지원
+   *
+   * @default false
+   */
+  sectorize?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -121,6 +132,7 @@ const props = withDefaults(defineProps<Props>(), {
   autoResize: true,
   showCenterMarker: true,
   animateOnMount: true,
+  sectorize: false,
 });
 
 const emit = defineEmits<{
@@ -153,6 +165,7 @@ const layout = computed(() =>
     width: renderSize.value.w,
     height: renderSize.value.h,
     settings: mergedSettings.value,
+    sectorize: props.sectorize,
   }),
 );
 
@@ -242,6 +255,30 @@ const POSITION_ANGLE: Record<RingLabelPosition, number> = {
   'top':          -Math.PI / 2,
   'top-right':    -Math.PI / 4,
 };
+
+/** sector 시각화 — 구분선 끝점 + 레이블 위치. */
+interface SectorVisual {
+  group: string;
+  /** 구분선 끝점 (시작 각도 기준, 중심→바깥) */
+  dividerX: number;
+  dividerY: number;
+  /** 레이블 좌표 — sector midAngle, maxRadius 살짝 안쪽 */
+  labelX: number;
+  labelY: number;
+}
+
+const sectorVisuals = computed<SectorVisual[]>(() => {
+  const { cx, cy, maxRadius, sectors } = layout.value;
+  // 레이블은 바깥 ring 보다 살짝 안쪽(95%) — padding 없는 컨테이너에서도 잘림 방지
+  const labelR = maxRadius * 0.95;
+  return sectors.map((s) => ({
+    group: s.group,
+    dividerX: cx + maxRadius * Math.cos(s.startAngle),
+    dividerY: cy + maxRadius * Math.sin(s.startAngle),
+    labelX: cx + labelR * Math.cos(s.midAngle),
+    labelY: cy + labelR * Math.sin(s.midAngle),
+  }));
+});
 
 const ringLabelPlacements = computed<RingLabelPlacement[]>(() => {
   const { cx, cy } = layout.value;
@@ -430,6 +467,16 @@ watch(layout, () => {
           :text-anchor="p.anchor" :font-size="p.style.fontSize" :font-weight="p.style.fontWeight"
           :fill="p.style.color" :letter-spacing="p.style.letterSpacing" :font-family="p.style.fontFamily">{{ p.text
           }}</text>
+      </g>
+
+      <!-- sector dividers + labels (sectorize 모드) -->
+      <g v-if="layout.sectors.length > 0" class="sectors" pointer-events="none">
+        <line v-for="s in sectorVisuals" :key="`sector-div-${s.group}`"
+          :x1="layout.cx" :y1="layout.cy" :x2="s.dividerX" :y2="s.dividerY"
+          stroke="#e5e7eb" stroke-width="1" stroke-dasharray="3 5" />
+        <text v-for="s in sectorVisuals" :key="`sector-lbl-${s.group}`"
+          :x="s.labelX" :y="s.labelY" text-anchor="middle" dominant-baseline="middle"
+          font-size="11" font-weight="700" fill="#374151" letter-spacing="0.04em">{{ s.group }}</text>
       </g>
 
       <!-- center marker (the bull) -->

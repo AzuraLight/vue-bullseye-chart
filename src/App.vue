@@ -4,11 +4,13 @@ import BasicView from './views/BasicView.vue';
 import NodeStyleView from './views/NodeStyleView.vue';
 import HighlightView from './views/HighlightView.vue';
 import RingZonesView from './views/RingZonesView.vue';
+import SectorView from './views/SectorView.vue';
 
 const tabs = [
   { id: 'basic', label: 'Basic', comp: BasicView },
   { id: 'style', label: 'Node Style', comp: NodeStyleView },
   { id: 'rings', label: 'Ring Zones', comp: RingZonesView },
+  { id: 'sector', label: 'Sector (pie+bullseye)', comp: SectorView },
   { id: 'highlight', label: 'Highlight + Focus', comp: HighlightView },
 ] as const;
 
